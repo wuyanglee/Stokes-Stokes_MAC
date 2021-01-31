@@ -1,5 +1,4 @@
-nu1=0.01;
-nu2=0.2;
-tau=0;
-kappa=1;
-a=1;
+% Paras.nu1=0.1; % the dynamic viscosity. for the PDEs.
+% Paras.nu2=0.2;
+% Paras.kappa=0.1; % drag coefficients. for interface conditions.
+% Paras.sigma=10; % the reaction term. for the PDEs. \sigma in paper.

@@ -1,4 +1,4 @@
-function A=build_A(nu,tau,dx,dy,m,n)
+function A=build_A(meshes, Paras, flag)
 % STOKESMATRIX constructs a staggered difference matrix for Stokes
 %   A=StokesMatrix(nu,m,n); computes a finite difference operator on a
 %   staggered grid for the Stokes operator 
@@ -14,13 +14,25 @@ function A=build_A(nu,tau,dx,dy,m,n)
 %   locations u(i*h,(j+1/2)*h), v((i+1/2)*h,j*h) and
 %   p((i+1/2)*h,(j+1/2)*h).
 
-% %% test
-% nup=10;
-% m=4;
-% n=3;
-% %% end test
-
 %%
+% paras;
+nu1 = Paras.nu1; % the dynamic viscosity. for the PDEs.
+nu2 = Paras.nu2;
+% kappa = Paras.kappa; % drag coefficients. for interface conditions.
+sigma = Paras.sigma; % the reaction term. for the PDEs. \sigma in paper.
+
+
+if flag==1
+    nu=nu1;
+else
+    nu=nu2;
+end
+
+dx=meshes.dx;
+dy=meshes.dy;
+m=meshes.m;
+n=meshes.n;
+
 
 e=ones(m-1,1);
 Duxx=(1/(dx*dx))*spdiags([e, (-2*e), e],[-1 0 1],m-1,m-1);
@@ -29,8 +41,7 @@ Duyy=(1/(dy*dy))*spdiags([e, (-2*e), e], [-1, 0, 1], n, n);
 eye_ux=speye(size(Duxx));
 eye_uy=speye(size(Duyy));
 Lu=kron(eye_uy,Duxx)+kron(Duyy,eye_ux);
-Lu=Lu+tau*speye((m-1)*n);
-
+Lu=-nu*Lu+sigma*speye((m-1)*n);
 
 e=ones(m,1);
 Dvxx=(1/(dx*dx))*spdiags([e, (-2*e), e],[-1 0 1],m,m);
@@ -39,7 +50,7 @@ Dvyy=(1/(dy*dy))*spdiags([e, (-2*e), e], [-1, 0, 1], n-1, n-1);
 eye_vx=speye(size(Dvxx));
 eye_vy=speye(size(Dvyy));
 Lv=kron(eye_vy,Dvxx)+kron(Dvyy,eye_vx);
-Lv=Lv+tau*speye((n-1)*m);
+Lv=-nu*Lv+sigma*speye((n-1)*m);
 
 e=ones(m,1);
 Dpx=spdiags([-e, e], [0, 1], m-1,m)./(dx);
@@ -61,9 +72,9 @@ Dvy=spdiags([-e,e], [-1,0], n, n-1)./dy;
 eye_ux=speye(m);
 Lvy=kron(Dvy, eye_ux);
 
-A=[      -nu*Lu    ,                   zeros((m-1)*n, m*(n-1)),     Lpx;
-   zeros((n-1)*m, n*(m-1))       -nu*Lv                                Lpy;
-           Lux                             Lvy                              zeros(n*m, m*n) ];
+A=[      Lu    ,                   sparse((m-1)*n, m*(n-1)),     Lpx;
+   sparse((n-1)*m, n*(m-1))   ,    Lv      ,                          Lpy;
+           Lux     ,                        Lvy        ,                      sparse(n*m, m*n) ];
 
 end
 

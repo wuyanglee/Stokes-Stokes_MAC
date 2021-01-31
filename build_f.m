@@ -1,7 +1,18 @@
-function [f] = build_f(dx,dy,m,n,tau,domain,flag)
+function [f] = build_f(domain,mesh, Paras, flag)
 %BUILD_F Summary of this function goes here
 %   Detailed explanation goes here
 
+% paras;
+% nu1 = Paras.nu1; % the dynamic viscosity. for the PDEs.
+% nu2 = Paras.nu2;
+% kappa = Paras.kappa; % drag coefficients. for interface conditions.
+% tau = Paras.tau; % the reaction term. for the PDEs. \sigma in paper.
+
+
+dx=mesh.dx;
+dy=mesh.dy;
+m=mesh.m;
+n=mesh.n;
 
 exact_solution;
 
